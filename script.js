@@ -4,11 +4,10 @@ const resetButton = document.getElementById('reset');
 const pomodoroButton = document.getElementById('pomodoro');
 const breakButton = document.getElementById('break');
 
-let timerInterval;
-let timeLeft;
+let timer;
+let timeLeft = 25 * 60;
 let isRunning = false;
-let isPomodoro = true;
-
+let mode = 'pomodoro';
 
 
 function updateDisplay() {
@@ -19,19 +18,19 @@ function updateDisplay() {
 
 function startTimer() {
     if (isRunning) {
-        clearInterval(timerInterval);
-        isRunning = false;
+        clearInterval(timer);
         startButton.textContent = 'start';
+        isRunning = false;
     } else {
         isRunning = true;
         startButton.textContent = 'stop';
-        timerInterval = setInterval(() => {
+        timer = setInterval(() => {
             timeLeft--;
             updateDisplay();
             if (timeLeft === 0) {
-                clearInterval(timerInterval);
-                isRunning = false;
+                clearInterval(timer);
                 startButton.textContent = 'start';
+                isRunning = false;
                 resetTimer();
             }
         });
@@ -39,39 +38,41 @@ function startTimer() {
 }
 
 function resetTimer() {
-    clearInterval(timerInterval);
+    clearInterval(timer);
     isRunning = false;
     startButton.textContent = 'start';
-    if (isPomodoro) {
-        timeLeft = 25 * 60;
-    } else {
-        timeLeft = 5 * 60;
-    }
+    timeLeft = mode === 'pomodoro' ? 25 * 60 : 5 * 60;
     updateDisplay();
 }
 
-function switchMode(mode) {
-    clearInterval(timerInterval);
-    isRunning = false;
-    startButton.textContent = 'start';
-    if (mode === 'pomodoro') {
-        isPomodoro = true;
-        pomodoroButton.classList.add('active');
-        breakButton.classList.remove('active');
-        timeLeft = 25 * 60;
-    } else {
-        isPomodoro = false;
-        breakButton.classList.add('active');
-        pomodoroButton.classList.remove('active');
-        timeLeft = 5 * 60;
-    }
-    updateDisplay();
-}
 
 startButton.addEventListener('click', startTimer);
 resetButton.addEventListener('click', resetTimer);
-pomodoroButton.addEventListener('click', () => switchMode('pomodoro'));
-breakButton.addEventListener('click', () => switchMode('break'));
 
-timeLeft = 25 * 60;
-updateDisplay();
+pomodoroButton.addEventListener('click', () => {
+    stopTimer();
+    pomodoroButton.classList.add('active');
+    breakButton.classList.remove('active');
+    mode = 'pomodoro';
+    resetTimer();
+});
+
+breakButton.addEventListener('click', () => {
+    stopTimer();
+    breakButton.classList.add('active');
+    pomodoroButton.classList.remove('active');
+    mode = 'break';
+    resetTimer();
+});
+
+function stopTimer() {
+    if (isRunning) {
+        clearInterval(timer);
+        isRunning = false;
+        startButton.textContent = 'start';
+    }
+}
+
+
+
+resetTimer();
